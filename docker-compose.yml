@@ -1,0 +1,35 @@
+version: "3.8"
+networks:
+  isolation-network:
+    driver: bridge
+
+services:
+  GpsApi:
+    build: ./TourGuideGpsUtil
+    image: gpsapi
+    ports:
+      - 81:8081
+    networks:
+      - isolation-network
+  RewardApi:
+    build: ./TourGuideRewardCentral
+    image: rewardapi
+    ports:
+      - 83:8083
+    networks:
+      - isolation-network
+    depends_on:
+      GpsApi:
+        condition: service_started
+  tourGuide:
+    build: ./TourGuide
+    image: tourguide
+    ports:
+      - 80:8080
+    networks:
+      - isolation-network
+    depends_on:
+      GpsApi:
+        condition: service_started
+      RewardApi:
+        condition: service_started

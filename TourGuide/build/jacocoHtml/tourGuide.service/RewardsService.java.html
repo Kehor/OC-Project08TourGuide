@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RewardsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TourGuide</a> &gt; <a href="index.source.html" class="el_package">tourGuide.service</a> &gt; <span class="el_source">RewardsService.java</span></div><h1>RewardsService.java</h1><pre class="source lang-java linenums">package tourGuide.service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import gpsUtil.GpsUtil;
+import gpsUtil.location.Attraction;
+import gpsUtil.location.Location;
+import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
+import tourGuide.microservice.RewardMicroservice;
+import tourGuide.user.User;
+import tourGuide.user.UserReward;
+
+@Service
+public class RewardsService {
+    private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+<span class="fc" id="L28">	private Logger logger = LoggerFactory.getLogger(RewardsService.class);</span>
+	// proximity in miles
+<span class="fc" id="L30">	private int attractionProximityRange = 200;</span>
+	private final RewardCentral rewardsCentral;
+	private final RewardMicroservice rewardMicroservice;
+<span class="fc" id="L33">	private ExecutorService executor = Executors.newFixedThreadPool(400);</span>
+	
+<span class="fc" id="L35">	public RewardsService(RewardCentral rewardCentral, RewardMicroservice rewardMicroservice) {</span>
+<span class="fc" id="L36">		this.rewardsCentral = rewardCentral;</span>
+<span class="fc" id="L37">		this.rewardMicroservice = rewardMicroservice;</span>
+<span class="fc" id="L38">	}</span>
+
+	public Future&lt;List&lt;UserReward&gt;&gt; calculateRewards(User user) {
+<span class="fc" id="L41">		return executor.submit(() -&gt; {</span>
+<span class="fc" id="L42">		logger.debug(&quot;CalculateRewards - thread : &quot;+Thread.currentThread().getName());</span>
+<span class="fc" id="L43">		ObjectMapper Obj = new ObjectMapper();</span>
+<span class="fc" id="L44">		String jsonVisitedLocations = null;</span>
+<span class="fc" id="L45">		String jsonUserReward = null;</span>
+		try {
+<span class="fc" id="L47">			jsonVisitedLocations = Obj.writeValueAsString(user.getVisitedLocations());</span>
+<span class="fc" id="L48">			jsonUserReward = Obj.writeValueAsString(user.getUserRewards());</span>
+
+<span class="nc" id="L50">		} catch (JsonProcessingException e) {</span>
+<span class="nc" id="L51">			e.printStackTrace();</span>
+<span class="fc" id="L52">		}</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">		List&lt;UserReward&gt; userRewards = ((userRewards =rewardMicroservice.getuserReward(user.getUserId(),jsonUserReward,jsonVisitedLocations)) != null ? userRewards : Collections.&lt;UserReward&gt;emptyList());</span>
+<span class="fc" id="L54">		user.setUserRewards(userRewards);</span>
+<span class="fc" id="L55">			return userRewards;</span>
+		});
+	}
+	
+	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		return getDistance(attraction, location) &gt; attractionProximityRange ? false : true;</span>
+	}
+
+	public double getDistance(Location loc1, Location loc2) {
+<span class="fc" id="L64">        double lat1 = Math.toRadians(loc1.latitude);</span>
+<span class="fc" id="L65">        double lon1 = Math.toRadians(loc1.longitude);</span>
+<span class="fc" id="L66">        double lat2 = Math.toRadians(loc2.latitude);</span>
+<span class="fc" id="L67">        double lon2 = Math.toRadians(loc2.longitude);</span>
+
+<span class="fc" id="L69">        double angle = Math.acos(Math.sin(lat1) * Math.sin(lat2)</span>
+<span class="fc" id="L70">                               + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));</span>
+
+<span class="fc" id="L72">        double nauticalMiles = 60 * Math.toDegrees(angle);</span>
+<span class="fc" id="L73">        double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;</span>
+<span class="fc" id="L74">        return statuteMiles;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
