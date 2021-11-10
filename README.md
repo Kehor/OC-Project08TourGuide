@@ -1,4 +1,8 @@
 # OC-Project08TourGuide
+## Technical:
+
+1. Java "1.8.0_251
+2. Gradle 6.4.1
 
 ## boot order:
 
