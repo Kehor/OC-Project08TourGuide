@@ -52,8 +52,18 @@ public class TourGuideService {
 		addShutDownHook();
 	}
 	
-	public List<UserReward> getUserRewards(User user) {
-		return user.getUserRewards();
+	public List<UserReward> getUserRewards(User user){
+		List<UserReward> userRewardList = null;
+		try {
+			userRewardList = (user.getUserRewards().size() > 0) ?
+					user.getUserRewards() :
+					rewardsService.calculateRewards(user).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		return userRewardList;
 	}
 
 	public VisitedLocation getUserLocation(User user) {
@@ -120,7 +130,7 @@ public class TourGuideService {
 				attractionMap.put(rewardsService.getDistance(attraction, visitedLocation.location), attraction);
 			}
 		}
-		List<Attraction> nearbyAttractions = new ArrayList<>(attractionMap.values());
+		List<Attraction> nearbyAttractions = ((nearbyAttractions = new ArrayList<>(attractionMap.values())).size() > 5 ? nearbyAttractions.subList(0,5) : nearbyAttractions);
 		return nearbyAttractions;
 	}
 

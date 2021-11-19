@@ -67,7 +67,7 @@ public class TestPerformance {
 	@Before
 	public void init() {
 		Locale.setDefault(Locale.US);
-		InternalTestHelper.setInternalUserNumber(100000);
+		InternalTestHelper.setInternalUserNumber(1);
 		this.rewardsService = new RewardsService(new RewardCentral(), rewardMicroservice);
 		this.tourGuideService = new TourGuideService(gpsMicroservice, rewardsService);
 	}

@@ -1,7 +1,4 @@
-package tourGuide.Dto;
-
-import gpsUtil.location.Attraction;
-import gpsUtil.location.VisitedLocation;
+package RewardApi.Dto;
 
 public class UserRewardDto {
     public VisitedLocationDto visitedLocation;

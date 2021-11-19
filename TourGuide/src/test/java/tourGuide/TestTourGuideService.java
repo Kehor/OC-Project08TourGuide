@@ -112,7 +112,6 @@ public class TestTourGuideService {
 		assertEquals(user.getUserId(), visitedLocation.userId);
 	}
 
-	@Ignore // Not yet implemented
 	@Test
 	public void getNearbyAttractions() throws ExecutionException, InterruptedException {
 		
@@ -125,7 +124,7 @@ public class TestTourGuideService {
 		
 		assertEquals(5, attractions.size());
 	}
-	@Ignore // Not yet implemented
+
 	@Test
 	public void getTripDeals() {
 		
@@ -135,7 +134,7 @@ public class TestTourGuideService {
 		
 		tourGuideService.tracker.stopTracking();
 		
-		assertEquals(10, providers.size());
+		assertEquals(5, providers.size());
 	}
 	
 	

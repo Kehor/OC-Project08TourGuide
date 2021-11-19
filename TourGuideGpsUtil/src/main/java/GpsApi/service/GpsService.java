@@ -38,7 +38,7 @@ public class GpsService {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(userId);
 		LocationDto locationDto = new LocationDto(visitedLocation.location.latitude,visitedLocation.location.longitude);
 		VisitedLocationDto visitedLocationDto = new VisitedLocationDto(userId,locationDto,visitedLocation.timeVisited);
-		logger.debug("getUserLocation end : ");
+		logger.debug("getUserLocation end ");
 		return visitedLocationDto;
 	}
 

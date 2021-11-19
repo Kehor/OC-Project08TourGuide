@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import RewardApi.Dto.AttractionDto;
 import RewardApi.Dto.LocationDto;
+import RewardApi.Dto.UserRewardDto;
 import RewardApi.Dto.VisitedLocationDto;
 import RewardApi.microservice.GpsMicroservice;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,7 +26,7 @@ public class RewardsService {
     private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 	private Logger logger = LoggerFactory.getLogger(RewardsService.class);
 	// proximity in miles
-    private int defaultProximityBuffer = 10;
+    private int defaultProximityBuffer = 5000;
 	private int proximityBuffer = defaultProximityBuffer;
 	private final RewardCentral rewardsCentral;
 	private final GpsMicroservice gpsMicroservice;
@@ -43,17 +44,17 @@ public class RewardsService {
 
 	public String setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
-		return "proximityBuffer : "+ proximityBuffer;
+		return "proximityBuffer : "+ this.proximityBuffer;
 	}
 
 	public String calculateRewards(UUID userId,String jsonUserReward,String jsonVisitedLocations){
 		logger.debug("calculateRewards - thead : "+Thread.currentThread().getName());
 		ObjectMapper objectMapper = new ObjectMapper();
 		List<VisitedLocationDto> visitedLocations = null;
-		List<UserReward> userRewards = null;
+		List<UserRewardDto> userRewards = null;
 		try {
 			visitedLocations = objectMapper.readValue(jsonVisitedLocations, new TypeReference<List<VisitedLocationDto>>(){});
-			userRewards = objectMapper.readValue(jsonUserReward, new TypeReference<List<UserReward>>(){});
+			userRewards = objectMapper.readValue(jsonUserReward, new TypeReference<List<UserRewardDto>>(){});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -61,7 +62,7 @@ public class RewardsService {
 			for(AttractionDto attraction : allAttractions) {
 				if(userRewards.stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
 					if(nearAttraction(visitedLocation, attraction)) {
-						userRewards.add(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, userId)));
+						userRewards.add(new UserRewardDto(visitedLocation, attraction, getRewardPoints(attraction, userId)));
 
 					}
 				}

@@ -50,7 +50,6 @@ public class GpsController {
         logger.info("GPSController : getuserlocation");
         if (userId.isEmpty()) {
             logger.error("GPSController : getuserlocation => userId is mandatory");
-            //add throw Exception
         }
         VisitedLocationDto visitedLocationDto = gpsService.getUserLocation(UUID.fromString(userId));
         Thread.currentThread().interrupt();
